@@ -60,7 +60,7 @@ def main():
 
     manipulatedVariables['damping'] = [0.5]
     manipulatedVariables['frictionloss'] = [1.4]
-    manipulatedVariables['masterForce'] = [15.0]
+    manipulatedVariables['masterForce'] = [17.0,19.0]
     manipulatedVariables['killZone'] = [4.0]
     manipulatedVariables['killZoneofDistractor'] = [0.0]
     manipulatedVariables['ropePunishWeight'] = [0.3]
@@ -70,10 +70,11 @@ def main():
     # manipulatedVariables['wolfMass'] = [3.0/] #ssr-1, ssr-3 = 1.0; Xp = 2.0
     manipulatedVariables['forceAllowedDistance'] = [0.3]
     manipulatedVariables['forceForbiddenPunish'] = [1.0]
-    manipulatedVariables['masterPullForce'] = [15.0]
+    manipulatedVariables['masterPullForce'] = [10.0]
     manipulatedVariables['sheepPunishRange'] = [0.6]
-    manipulatedVariables['sheepForce'] = [8.0]
+    manipulatedVariables['sheepForce'] = [10.0]
     manipulatedVariables['forceAllowedDistanceForSheep'] = [1.5]
+    manipulatedVariables['wolfForce'] = [7.0]
 
 
     productedValues = it.product(*[[(key, value) for value in values] for key, values in manipulatedVariables.items()])

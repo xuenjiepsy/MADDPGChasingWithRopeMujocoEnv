@@ -73,6 +73,7 @@ def main():
         sheepPunishRange = float(condition['sheepPunishRange'])
         sheepForce = float(condition['sheepForce'])
         masterPullDistanceForSheep = float(condition['forceAllowedDistanceForSheep'])
+        wolfForce = float(condition['wolfForce'])
 
         maxTimeStep = 25
         visualize=False
@@ -83,7 +84,7 @@ def main():
 
     dataFolder = os.path.join(dirName, '..','..', 'data')
     mainModelFolder = os.path.join(dataFolder,'modelplus')
-    modelFolder = os.path.join(mainModelFolder, 'MasterForceAmplifiedForWolveAndSheepDistancewithFrictionChanged','frictionloss={}'.format(frictionloss))
+    modelFolder = os.path.join(mainModelFolder, 'MasterForDistractorWolveSpeedUpAndSheepDistancewithFrictionChanged','sheepForce={}_wolfForce={}_masterforce={}_masterPullForce={}_masterPullDistanceForSheep={}'.format(sheepForce,wolfForce,masterForce,masterPullForce,masterPullDistanceForSheep))
 
     if not os.path.exists(modelFolder):
         os.makedirs(modelFolder)
@@ -123,8 +124,8 @@ def main():
     rewardWolf = RewardWolf(wolvesID, sheepsID, entitiesSizeList, isCollision)
     punishRopeWithDistractor1 = RewardSheep(ropePartIndex, [distractorID[0]], entitiesSizeList, getPosFromAgentState, isCollision, zeroPunishForOutOfBound)
     punishRopeWithDistractor2 = RewardSheep(ropePartIndex, [distractorID[1]], entitiesSizeList, getPosFromAgentState, isCollision, zeroPunishForOutOfBound)
-    rewardDistractor1 = RewardSheep(wolvesID+sheepsID+masterID+[distractorID[1]], [distractorID[0]], entitiesSizeList, getPosFromAgentState, isCollisionForDistractor,punishForOutOfBound)
-    rewardDistractor2 = RewardSheep(wolvesID+sheepsID+masterID+[distractorID[0]], [distractorID[1]], entitiesSizeList, getPosFromAgentState, isCollisionForDistractor,punishForOutOfBound)
+    rewardDistractor1 = RewardSheep(wolvesID+sheepsID+masterID+[distractorID[1]], [distractorID[0]], entitiesSizeList, getPosFromAgentState, isCollisionForDistractor,sheepPunishForOutOfBound)
+    rewardDistractor2 = RewardSheep(wolvesID+sheepsID+masterID+[distractorID[0]], [distractorID[1]], entitiesSizeList, getPosFromAgentState, isCollisionForDistractor,sheepPunishForOutOfBound)
     rewardDistractorWithRopePunish1 = lambda state, action, nextState:[sheepRewrad  + ropePunish * ropePunishWeight for sheepRewrad,ropePunish in zip(rewardDistractor1( state, action, nextState),punishRopeWithDistractor1( state, action, nextState))]
     rewardDistractorWithRopePunish2 = lambda state, action, nextState:[sheepRewrad  + ropePunish * ropePunishWeight for sheepRewrad,ropePunish in zip(rewardDistractor2( state, action, nextState),punishRopeWithDistractor2( state, action, nextState))]
     masterPunishForOutOfBound=PunishForOutOfBoundVarRange(masterPunishRange)
@@ -177,7 +178,7 @@ def main():
 
     numSimulationFrames=10
     isTerminal= lambda state: False
-    reshapeActionList = [ReshapeAction(5),ReshapeAction(sheepForce),ReshapeAction(masterForce),ReshapeAction(5),ReshapeAction(5)]
+    reshapeActionList = [ReshapeAction(wolfForce),ReshapeAction(sheepForce),ReshapeAction(masterForce),ReshapeAction(15),ReshapeAction(15)]
     transit=TransitionFunctionWithoutXPos(physicsSimulation, numSimulationFrames, visualize,isTerminal, reshapeActionList)
 
     observeOneAgent = lambda agentID: Observe(agentID, wolvesID, sheepsID + masterID +distractorID, [], getPosFromAgentState,getVelFromAgentState)

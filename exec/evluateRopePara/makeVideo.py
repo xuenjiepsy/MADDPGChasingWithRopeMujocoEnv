@@ -41,6 +41,7 @@ def makeVideo(condition):
         masterPunishRange = float(condition['masterPunishRange'])
         sheepForce = float(condition['sheepForce'])
         masterPullDistanceForSheep = float(condition['forceAllowedDistanceForSheep'])
+        wolfForce = float(condition['wolfForce'])
         dt = 0.02
         offsetFrame = int (offset/dt)
 
@@ -51,14 +52,14 @@ def makeVideo(condition):
         # offset = float(condition['offset'])
         # hideId = int(condition['hideId'])
 
-        numTrajToSample=3
+        numTrajToSample=4
         maxRunningStepsToSample=1000
 
 
     dataFolder = os.path.join(dirName, '..','..', 'data')
     mainDemoFolder = os.path.join(dataFolder,'demo')
     # videoFolder=os.path.join(mainDemoFolder, 'expTrajMADDPGMujocoEnvWithRopeAdd2Distractors','normal')
-    videoFolder=os.path.join(mainDemoFolder, 'MasterForceForWolveAndSheepDistancewithFrictionChanged2','normal')
+    videoFolder=os.path.join(mainDemoFolder, 'MasterForDistractorWolveSpeedUpAndSheepDistancewithFrictionChanged','normal')
     # videoFolder=os.path.join(mainDemoFolder, 'expTrajMADDPGMujocoEnvWithRopeAddDistractor_wolfHideSpeed','CrossSheep',)
     # videoFolder=os.path.join(mainDemoFolder, '2expTrajMADDPGMujocoEnvWithRopeAddDistractor_wolfHideSpeed','noise','NoiseDistractor')
     # videoFolder=os.path.join(mainDemoFolder, '2expTrajMADDPGMujocoEnvWithRopeAddDistractor_wolfHideSpeed','OffsetWolfForward')
@@ -66,7 +67,8 @@ def makeVideo(condition):
     if not os.path.exists(videoFolder):
         os.makedirs(videoFolder)
     # videoPath= os.path.join(videoFolder,'MADDPGMujocoEnvWithRopeAdd2Distractor_damping={}_frictionloss={}_masterForce={}.avi'.format(damping,frictionloss,masterForce))
-    videoPath= os.path.join(videoFolder,'frictionloss={}.avi'.format(frictionloss))
+    videoPath= os.path.join(videoFolder,'sheepForce={}_wolfForce={}_masterforce={}_masterPullForce={}_masterPullDistanceForSheep={}.avi'.format(sheepForce,wolfForce,masterForce,masterPullForce,masterPullDistanceForSheep))
+
     # videoPath= os.path.join(mainDemoFolder,'MADDPGMujocoEnvWithRopeAdd2DistractorWithRopePunish_damping={}_frictionloss={}_masterForce={}.avi'.format(damping,frictionloss,masterForce))
     # videoPath= os.path.join(videoFolder,'CrossSheepMADDPGMujocoEnvWithRopeAddDistractor_wolfHideSpeed_damping={}_frictionloss={}_masterForce={}.avi'.format(damping,frictionloss,masterForce))
     # videoPath= os.path.join(videoFolder,'OffsetWolfForwardMADDPGMujocoEnvWithRopeAddDistractor_wolfHideSpeed_damping={}_frictionloss={}_masterForce={}_offsetFrame={}.avi'.format(damping,frictionloss,masterForce,offsetFrame))
@@ -86,7 +88,8 @@ def makeVideo(condition):
     # pictureFolder = os.path.join(videoFolder,'damping={}_frictionloss={}_masterForce={}_distractorNoise={}'.format(damping,frictionloss,masterForce,distractorNoise))
     # pictureFolder = os.path.join(videoFolder,'damping={}_frictionloss={}_masterForce={}'.format(damping,frictionloss,masterForce))
     # pictureFolder = os.path.join(videoFolder,'damping={}_frictionloss={}_masterForce={}_offset={}_hideId={}'.format(damping,frictionloss,masterForce,offset,hideId))
-    pictureFolder = os.path.join(dataFolder, 'demo', 'MasterForceForWolveAndSheepDistancewithFrictionChanged2','normal','frictionloss={}'.format(frictionloss))
+    pictureFolder = os.path.join(dataFolder, 'demo', 'MasterForDistractorWolveSpeedUpAndSheepDistancewithFrictionChanged','normal','sheepForce={}_wolfForce={}_masterforce={}_masterPullForce={}_masterPullDistanceForSheep={}'.format(sheepForce,wolfForce,masterForce,masterPullForce,masterPullDistanceForSheep))
+
 
     for i in range(0,numTrajToSample*maxRunningStepsToSample):
         imgPath=os.path.join(pictureFolder,'rope'+str(i)+'.png')
@@ -100,7 +103,7 @@ def main():
     # manipulatedVariables['damping'] = [0.5]
     # manipulatedVariables['frictionloss'] = [1.0]
     manipulatedVariables['frictionloss'] = [1.4]
-    manipulatedVariables['masterForce'] = [20.0]
+    manipulatedVariables['masterForce'] = [17.0, 19.0]
     manipulatedVariables['killZone'] = [4.0]
     manipulatedVariables['killZoneofDistractor'] = [0.0]
     manipulatedVariables['ropePunishWeight'] = [0.3]
@@ -110,10 +113,11 @@ def main():
     # manipulatedVariables['wolfMass'] = [3.0/] #ssr-1, ssr-3 = 1.0; Xp = 2.0
     manipulatedVariables['forceAllowedDistance'] = [0.3]
     manipulatedVariables['forceForbiddenPunish'] = [1.0]
-    manipulatedVariables['masterPullForce'] = [1.0]
+    manipulatedVariables['masterPullForce'] = [10.0]
     manipulatedVariables['sheepPunishRange'] = [0.6]
-    manipulatedVariables['sheepForce'] = [8.0]
-    manipulatedVariables['forceAllowedDistanceForSheep'] = [1.4]
+    manipulatedVariables['sheepForce'] = [10.0]
+    manipulatedVariables['forceAllowedDistanceForSheep'] = [1.5]
+    manipulatedVariables['wolfForce'] = [7.0]
     # manipulatedVariables['offset'] = [0.0]
     # manipulatedVariables['hideId'] = [3]
     productedValues = it.product(*[[(key, value) for value in values] for key, values in manipulatedVariables.items()])

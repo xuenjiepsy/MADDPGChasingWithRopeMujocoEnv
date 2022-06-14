@@ -219,8 +219,12 @@ class RewardSheep:
             sheepNextState = nextState[sheepID]
             sheepNextPos = self.getPosFromState(sheepNextState)
             sheepSize = self.entitiesSizeList[sheepID]
-
             sheepReward -= self.punishForOutOfBound(sheepNextPos)
+            if sheepID==3 or sheepID==4:
+                sheepAction = action[sheepID]
+                sheepForce = math.sqrt(sheepAction[0]**2 +sheepAction[1]**2)
+                if sheepForce>8:
+                    sheepReward += 16
             for wolfID in self.wolvesID:
                 wolfSize = self.entitiesSizeList[wolfID]
                 wolfNextState = nextState[wolfID]

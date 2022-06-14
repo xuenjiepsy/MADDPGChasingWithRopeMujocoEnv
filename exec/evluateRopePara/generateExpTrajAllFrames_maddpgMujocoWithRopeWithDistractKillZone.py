@@ -61,14 +61,14 @@ def generateSingleCondition(condition):
         # print(sys.argv)
         # condition = json.loads(sys.argv[1])
         damping = 0.5
-        frictionloss = float(condition['frictionloss'])
-        masterForce = 10.0
+        frictionloss = 1.4
         offset = 0.0
         killZoneRatio = 4.0
         distractKillZoneRatio = 0.0
         ropePunishWeight = 0.3
         ropeLength = float(condition['ropeLength'])
-        masterMass = float(condition['masterMass'])
+        masterMass = 1.0
+        masterForce = float(condition['masterForce'])
         masterPunishRange = float(condition['masterPunishRange'])
         masterPullDistance = float(condition['forceAllowedDistance'])
         masterPullPunish = 1.0
@@ -76,6 +76,8 @@ def generateSingleCondition(condition):
         sheepPunishRange = float(condition['sheepPunishRange'])
         sheepForce = float(condition['sheepForce'])
         masterPullDistanceForSheep = float(condition['forceAllowedDistanceForSheep'])
+        wolfForce = float(condition['wolfForce'])
+        distractorNoise = float(condition['distractorNoise'])
         dt = 0.02
         offsetFrame = int (offset/dt)
 
@@ -87,9 +89,9 @@ def generateSingleCondition(condition):
         numDistractor = 2
         maxTimeStep = 25
 
-        noiseDistractor=True
+        noiseDistractor=False
         if noiseDistractor:
-            distractorNoise = 0.0
+            distractorNoise = 32.0
 
         saveTraj=True
         saveImage=True
@@ -99,7 +101,7 @@ def generateSingleCondition(condition):
 
     evalNum = 4
     maxRunningStepsToSample = 100
-    modelSaveName = 'MasterForceForWolveAndSheepDistancewithFrictionChanged2'
+    modelSaveName = 'MasterForDistractorWolveSpeedUpAndSheepDistancewithFrictionChanged'
     # modelSaveName = 'expTrajMADDPGMujocoEnvWithRopeAdd2Distractors'
     print("maddpg: , saveTraj: {}, visualize: {},damping; {},frictionloss: {}".format( str(saveTraj), str(visualizeMujoco),damping,frictionloss))
     wolvesID = [0]
@@ -204,9 +206,9 @@ def generateSingleCondition(condition):
 
     noiseDistractorAction= lambda state:limitForceMagnitude((distractorReshapeAction(state)+np.random.multivariate_normal(noiseMean, noiseCov, (1, 1), 'raise')[0])[0])
     if noiseDistractor:
-          reshapeActionList = [ReshapeAction(5),ReshapeAction(sheepForce),ReshapeAction(masterForce),noiseDistractorAction,noiseDistractorAction]
+          reshapeActionList = [ReshapeAction(wolfForce),ReshapeAction(sheepForce),ReshapeAction(masterForce),noiseDistractorAction,noiseDistractorAction]
     else:
-        reshapeActionList = [ReshapeAction(5),ReshapeAction(sheepForce),ReshapeAction(masterForce),ReshapeAction(5),ReshapeAction(5)]
+        reshapeActionList = [ReshapeAction(wolfForce),ReshapeAction(sheepForce),ReshapeAction(masterForce),ReshapeAction(15),ReshapeAction(15)]
 
 
 
@@ -236,7 +238,8 @@ def generateSingleCondition(condition):
     mainModelFolder = os.path.join(dataFolder,'modelplus')
     # modelFolder = os.path.join(mainModelFolder, modelSaveName,'damping={}_frictionloss={}_killZoneRatio{}_masterForce={}_masterMass={}_ropeLength={}_ropePunishWeight={}'.format(damping,frictionloss,killZoneRatio,masterForce,masterMass,ropeLength,ropePunishWeight))
     
-    modelFolder = os.path.join(mainModelFolder, modelSaveName,'frictionloss={}'.format(frictionloss))
+    modelFolder = os.path.join(mainModelFolder, modelSaveName,'sheepForce={}_wolfForce={}_masterforce={}_masterPullForce={}_masterPullDistanceForSheep={}'.format(sheepForce,wolfForce,masterForce,masterPullForce,masterPullDistanceForSheep))
+
     fileName = "maddpg{}episodes{}step_agent".format(maxEpisode, maxTimeStep)
     
     modelPaths = [os.path.join(modelFolder,  fileName + str(i) +str(evaluateEpisode)+'eps') for i in range(numAgent)]
@@ -271,7 +274,7 @@ def generateSingleCondition(condition):
         if saveTraj:
             # trajFileName = "maddpg{}wolves{}sheep{}blocks{}eps{}step{}Traj".format(numWolves, numSheeps, numMasters, maxEpisode, maxTimeStep)
 
-            trajectoriesSaveDirectory= os.path.join(dataFolder,'trajectory',modelSaveName,'noiseOffsetMasterForSelectOct11')
+            trajectoriesSaveDirectory= os.path.join(dataFolder,'trajectory',modelSaveName,'ENDnoiseOffsetWithMasterPull')
             if not os.path.exists(trajectoriesSaveDirectory):
                 os.makedirs(trajectoriesSaveDirectory)
 
@@ -281,7 +284,7 @@ def generateSingleCondition(condition):
             trajectorySavePath = generateTrajectorySavePath(condition)
             saveToPickle(trajList, trajectorySavePath)
 
-            expTrajectoriesSaveDirectory = os.path.join(dataFolder, 'Exptrajectory', modelSaveName,'noiseOffsetWithMasterPull')
+            expTrajectoriesSaveDirectory = os.path.join(dataFolder, 'Exptrajectory', modelSaveName,'ENDnoiseOffsetWithMasterPull')
             if not os.path.exists(expTrajectoriesSaveDirectory):
                 os.makedirs(expTrajectoriesSaveDirectory)
 
@@ -293,8 +296,7 @@ def generateSingleCondition(condition):
         if visualizeTraj:
 
             # pictureFolder = os.path.join(dataFolder, 'demo', modelSaveName,'normal','damping={}_frictionloss={}_masterForce={}'.format(damping,frictionloss,masterForce))
-            pictureFolder = os.path.join(dataFolder, 'demo', modelSaveName,'normal','frictionloss={}'.format(frictionloss))
-
+            pictureFolder = os.path.join(dataFolder, 'demo', modelSaveName,'normal','sheepForce={}_wolfForce={}_masterforce={}_masterPullForce={}_masterPullDistanceForSheep={}'.format(sheepForce,wolfForce,masterForce,masterPullForce,masterPullDistanceForSheep))
             if not os.path.exists(pictureFolder):
                 os.makedirs(pictureFolder)
             else:
@@ -315,18 +317,19 @@ def main():
     # manipulatedVariables['offset'] = [-2,-1,-0.5, 0 ,0.5,1,2]
     # manipulatedVariables['distractorNoise']=[3.0]
 
-    manipulatedVariables['frictionloss'] = [1.4]
-    
 
     manipulatedVariables['ropeLength'] = [0.04] #ssr-1,Xp = 0.06; ssr-3 =0.09
-    manipulatedVariables['masterMass'] = [1.0] #ssr-1, ssr-3 = 1.0; Xp = 2.0
+ #ssr-1, ssr-3 = 1.0; Xp = 2.0
     manipulatedVariables['masterPunishRange'] = [0.5]
     manipulatedVariables['forceAllowedDistance'] = [0.3]
-
+    manipulatedVariables['masterForce'] = [17.0,19.0]
     manipulatedVariables['masterPullForce'] = [10.0]
     manipulatedVariables['sheepPunishRange'] = [0.6]
-    manipulatedVariables['sheepForce'] = [8.0]
+    manipulatedVariables['sheepForce'] = [10.0]
     manipulatedVariables['forceAllowedDistanceForSheep'] = [1.5]
+    manipulatedVariables['wolfForce'] = [7.0]
+    manipulatedVariables['distractorNoise'] = [20.0]
+
     productedValues = it.product(*[[(key, value) for value in values] for key, values in manipulatedVariables.items()])
     conditions = [dict(list(specificValueParameter)) for specificValueParameter in productedValues]
     for condition in conditions:
